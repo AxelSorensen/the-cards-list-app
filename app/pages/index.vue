@@ -647,9 +647,14 @@ function reset() {
 }
 
 function goBack() {
-  if (step.value === 3) {
+  if (step.value === 3 || step.value === 4) {
     dealStarted.value = false; dealDone.value = false
     dealtVisible.value = []; flyingCard.value = null; revealedCardIds.value = new Set()
+    // Re-strip deck-dealt cards so slots don't show until re-dealt
+    const volunteerCardIds = new Set(volunteerAssignments.value.map(v => v.card.id))
+    players.value.forEach(p => {
+      if (!p.isHost && p.card && !volunteerCardIds.has(p.card.id)) p.card = null
+    })
   }
   step.value--
 }
