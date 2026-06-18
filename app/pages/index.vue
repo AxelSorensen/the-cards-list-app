@@ -595,6 +595,7 @@ const seenIds = ref(new Set<number>())
 const players = ref<Player[]>([])
 const dealtDeck = ref<NightCard[]>([])
 const originalCards = ref<Record<number, NightCard>>({})
+const revealedCardIds = ref<Set<string>>(new Set())
 
 const dealStarted = ref(false)
 const dealDone = ref(false)
@@ -642,13 +643,13 @@ function reset() {
   swapPct.value = 20; seenIds.value = new Set()
   players.value = []; dealtDeck.value = []; originalCards.value = {}
   dealStarted.value = false; dealDone.value = false
-  dealtVisible.value = []; flyingCard.value = null
+  dealtVisible.value = []; flyingCard.value = null; revealedCardIds.value = new Set()
 }
 
 function goBack() {
   if (step.value === 3) {
     dealStarted.value = false; dealDone.value = false
-    dealtVisible.value = []; flyingCard.value = null
+    dealtVisible.value = []; flyingCard.value = null; revealedCardIds.value = new Set()
   }
   step.value--
 }
@@ -677,13 +678,21 @@ function goToDeal() {
   const shuffled = shuffle(combined)
   unassigned.forEach((p, i) => { p.card = shuffled[i] ?? null })
 
-  players.value = ps
+  // Save full assignments
   const snap: Record<number, NightCard> = {}
   ps.forEach(p => { if (p.card) snap[p.id] = p.card })
   originalCards.value = snap
 
+  // Strip deck-dealt cards from players until revealed during animation
+  const volunteerCardIds = new Set(va.map(v => v.card.id))
+  ps.forEach(p => {
+    if (!p.isHost && p.card && !volunteerCardIds.has(p.card.id)) p.card = null
+  })
+  players.value = ps
+  revealedCardIds.value = new Set()
+
   dealStarted.value = false; dealDone.value = false
-  dealtVisible.value = []; flyingCard.value = null
+  dealtVisible.value = []; flyingCard.value = null; revealedCardIds.value = new Set()
   redStackRemaining.value = NON_HOST_SPOTS
   surplusStackRemaining.value = surplus.value - volunteerCount.value
   step.value = 3
@@ -691,6 +700,11 @@ function goToDeal() {
 
 async function startDealAnimation() {
   dealStarted.value = true
+  // Build reverse map: cardId → player id
+  const cardToPlayer: Record<string, number> = {}
+  Object.entries(originalCards.value).forEach(([pid, card]) => {
+    cardToPlayer[card.id] = Number(pid)
+  })
   const cards = [...dealtDeck.value]
   for (let i = 0; i < cards.length; i++) {
     const card = cards[i]
@@ -699,6 +713,12 @@ async function startDealAnimation() {
     else redStackRemaining.value = Math.max(0, redStackRemaining.value - 1)
     await new Promise(r => setTimeout(r, 120))
     dealtVisible.value = [...dealtVisible.value, card]
+    // Reveal card on the player so the slot appears
+    const pid = cardToPlayer[card.id]
+    if (pid !== undefined) {
+      const p = players.value.find(p => p.id === pid)
+      if (p) p.card = originalCards.value[pid]
+    }
     flyingCard.value = null
     await new Promise(r => setTimeout(r, 40))
   }
