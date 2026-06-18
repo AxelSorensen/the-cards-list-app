@@ -372,11 +372,11 @@
             <div class="space-y-2">
               <template v-for="slot in allSlots.filter(s => !s.players.some(p => p.isHost))" :key="slot.slotNum">
                 <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
-                  <div class="px-4 pt-2 pb-1">
-                    <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-700' : 'text-zinc-600'">Slot {{ slot.slotNum }}</span>
+                  <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
+                    <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
                   </div>
                   <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
-                    <div v-for="p in slot.players" :key="p.id" class="flex items-center gap-3 px-4 pb-3.5">
+                    <div v-for="p in slot.players" :key="p.id" class="flex items-center gap-3 px-4 py-3.5">
                       <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
                         :class="p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
                         style="width:32px;height:44px">
@@ -460,11 +460,11 @@
             <p class="text-[10px] uppercase tracking-widest text-zinc-500 px-1">First set</p>
             <template v-for="slot in allSlots.slice(0, 7)" :key="slot.slotNum">
               <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
-                <div class="px-4 pt-2 pb-1">
-                  <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-700' : 'text-zinc-600'">Slot {{ slot.slotNum }}</span>
+                <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
+                  <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
                 </div>
                 <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
-                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 pb-3.5">
+                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 py-3.5">
                     <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
                       :class="p.isHost ? 'bg-white border border-rose-300' : p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
                       style="width:32px;height:44px">
@@ -492,11 +492,11 @@
             <p class="text-[10px] uppercase tracking-widest text-zinc-500 px-1">Second set</p>
             <template v-for="slot in allSlots.slice(7)" :key="slot.slotNum">
               <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
-                <div class="px-4 pt-2 pb-1">
-                  <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-700' : 'text-zinc-600'">Slot {{ slot.slotNum }}</span>
+                <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
+                  <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
                 </div>
                 <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
-                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 pb-3.5">
+                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 py-3.5">
                     <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
                       :class="p.isHost ? 'bg-white border border-rose-300' : p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
                       style="width:32px;height:44px">
