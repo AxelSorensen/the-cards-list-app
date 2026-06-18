@@ -681,18 +681,14 @@ function goToDeal() {
 
   const unassigned = ps.filter(p => !p.isHost && !p.card)
   const shuffled = shuffle(combined)
-  unassigned.forEach((p, i) => { p.card = shuffled[i] ?? null })
 
-  // Save full assignments
+  // Save full assignments in originalCards WITHOUT assigning to players yet
   const snap: Record<number, NightCard> = {}
-  ps.forEach(p => { if (p.card) snap[p.id] = p.card })
+  ps.forEach(p => { if (p.card) snap[p.id] = p.card }) // host + volunteers
+  unassigned.forEach((p, i) => { if (shuffled[i]) snap[p.id] = shuffled[i] }) // deck players
   originalCards.value = snap
 
-  // Strip deck-dealt cards from players until revealed during animation
-  const volunteerCardIds = new Set(va.map(v => v.card.id))
-  ps.forEach(p => {
-    if (!p.isHost && p.card && !volunteerCardIds.has(p.card.id)) p.card = null
-  })
+  // Players only have host + volunteer cards — deck cards revealed during animation
   players.value = ps
   revealedCardIds.value = new Set()
 
