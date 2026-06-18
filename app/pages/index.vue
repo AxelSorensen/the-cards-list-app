@@ -334,63 +334,28 @@
             🃏 Deal cards
           </button>
 
-          <!-- Already dealt: host + volunteers -->
-          <div class="rounded-2xl border border-zinc-800 overflow-hidden">
-            <div class="px-4 py-2 bg-zinc-900/60 border-b border-zinc-800">
-              <span class="text-[10px] uppercase tracking-widest text-zinc-500">Already dealt</span>
-            </div>
-            <!-- Host row -->
-            <div class="flex items-center gap-3 px-4 py-3 bg-zinc-900">
-              <div class="relative bg-white border-2 border-rose-400 rounded-lg flex flex-col items-center justify-center flex-shrink-0" style="width:32px;height:44px">
-                <span class="text-[6px] absolute top-1 left-1 leading-none text-rose-400">JKR</span>
-                <span class="text-rose-500 text-xs">🃏</span>
-                <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180 text-rose-400">JKR</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium text-zinc-100">Host <span class="text-zinc-600 font-normal text-xs">red joker</span></div>
-              </div>
-              <span :class="blackJokerInDeck ? 'text-orange-400' : 'text-emerald-500'" class="text-xs font-semibold flex-shrink-0">{{ blackJokerInDeck ? '1 song' : '2 songs' }}</span>
-            </div>
-            <!-- Volunteer rows -->
-            <div v-for="va in volunteerAssignments" :key="va.playerName"
-              class="flex items-center gap-3 px-4 py-3 bg-zinc-900 border-t border-zinc-800/60">
-              <div class="relative rounded-lg flex flex-col items-center justify-center font-bold flex-shrink-0 bg-zinc-800 border border-zinc-600" style="width:32px;height:44px">
-                <span class="text-[6px] absolute top-1 left-1 leading-none text-zinc-400">{{ va.card.rank }}</span>
-                <span class="text-xs leading-none text-zinc-300">{{ va.card.suit }}</span>
-                <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180 text-zinc-400">{{ va.card.rank }}</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium text-zinc-100 truncate">{{ va.playerName }} <span class="text-zinc-600 font-normal text-xs">volunteer</span></div>
-              </div>
-              <span class="text-xs text-orange-400 font-semibold flex-shrink-0">1 song</span>
-            </div>
-          </div>
-
-          <!-- Rest dealt out -->
-          <div v-if="dealDone" class="space-y-2">
-            <p class="text-[10px] uppercase tracking-widest text-zinc-500 px-1">Rest of deck</p>
-            <div class="space-y-2">
-              <template v-for="slot in allSlots.filter(s => !s.players.some(p => p.isHost))" :key="slot.slotNum">
-                <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
-                  <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
-                    <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
-                  </div>
-                  <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
-                    <div v-for="p in slot.players" :key="p.id" class="flex items-center gap-3 px-4 py-3.5">
-                      <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
-                        :class="p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
-                        style="width:32px;height:44px">
-                        <span class="text-[6px] absolute top-1 left-1 leading-none" :class="p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.card?.rank }}</span>
-                        <span class="text-sm leading-none" :class="p.card?.isBlack ? 'text-zinc-300' : 'text-rose-500'">{{ p.card?.suit }}</span>
-                        <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180" :class="p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.card?.rank }}</span>
-                      </div>
-                      <span class="text-sm font-medium text-zinc-100 flex-1 truncate">{{ p.name }}</span>
-                      <span class="text-xs font-semibold flex-shrink-0" :class="slot.shared ? 'text-orange-400' : 'text-emerald-500'">{{ slot.shared ? '1 song' : '2 songs' }}</span>
+          <!-- All slots: fills in as cards are dealt -->
+          <div class="space-y-2">
+            <template v-for="slot in allSlots" :key="slot.slotNum">
+              <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
+                <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
+                  <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
+                </div>
+                <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
+                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 py-3.5">
+                    <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
+                      :class="p.isHost ? 'bg-white border border-rose-300' : p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
+                      style="width:32px;height:44px">
+                      <span class="text-[6px] absolute top-1 left-1 leading-none" :class="p.isHost ? 'text-rose-400' : p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.isHost ? 'JKR' : p.card?.rank }}</span>
+                      <span class="text-sm leading-none" :class="p.isHost ? 'text-rose-500' : p.card?.isBlack ? 'text-zinc-300' : 'text-rose-500'">{{ p.isHost ? '🃏' : p.card?.suit }}</span>
+                      <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180" :class="p.isHost ? 'text-rose-400' : p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.isHost ? 'JKR' : p.card?.rank }}</span>
                     </div>
+                    <span class="text-sm font-medium text-zinc-100 flex-1 truncate">{{ p.name }}<span v-if="p.isHost" class="text-zinc-600 font-normal text-xs ml-1.5">host</span></span>
+                    <span class="text-xs font-semibold flex-shrink-0" :class="slot.shared ? 'text-orange-400' : 'text-emerald-500'">{{ slot.shared ? '1 song' : '2 songs' }}</span>
                   </div>
                 </div>
-              </template>
-            </div>
+              </div>
+            </template>
           </div>
         </div>
 
