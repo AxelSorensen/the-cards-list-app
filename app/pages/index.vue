@@ -334,23 +334,29 @@
             🃏 Deal cards
           </button>
 
-          <!-- All slots: fills in as cards are dealt -->
+          <!-- All slots: filled or pending -->
           <div class="space-y-2">
-            <template v-for="slot in allSlots" :key="slot.slotNum">
+            <template v-for="slot in dealPageSlots" :key="slot.slotNum">
               <div :class="slot.shared ? 'border border-orange-900/50' : 'border border-zinc-800'" class="rounded-2xl overflow-hidden bg-zinc-900">
                 <div class="px-4 py-2 border-b" :class="slot.shared ? 'border-orange-900/30' : 'border-zinc-800'">
                   <span class="text-[10px] uppercase tracking-widest font-semibold" :class="slot.shared ? 'text-orange-600' : 'text-zinc-500'">Slot {{ slot.slotNum }}</span>
                 </div>
                 <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
-                  <div v-for="p in slot.players" :key="p.isHost ? 'host' : p.id" class="flex items-center gap-3 px-4 py-3.5">
+                  <div v-for="(entry, i) in slot.entries" :key="i" class="flex items-center gap-3 px-4 py-3.5">
+                    <!-- Card face -->
                     <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
-                      :class="p.isHost ? 'bg-white border border-rose-300' : p.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white'"
+                      :class="entry.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white border border-zinc-200'"
                       style="width:32px;height:44px">
-                      <span class="text-[6px] absolute top-1 left-1 leading-none" :class="p.isHost ? 'text-rose-400' : p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.isHost ? 'JKR' : p.card?.rank }}</span>
-                      <span class="text-sm leading-none" :class="p.isHost ? 'text-rose-500' : p.card?.isBlack ? 'text-zinc-300' : 'text-rose-500'">{{ p.isHost ? '🃏' : p.card?.suit }}</span>
-                      <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180" :class="p.isHost ? 'text-rose-400' : p.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ p.isHost ? 'JKR' : p.card?.rank }}</span>
+                      <span class="text-[6px] absolute top-1 left-1 leading-none" :class="entry.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ entry.card?.rank }}</span>
+                      <span class="text-sm leading-none" :class="entry.card?.isBlack ? 'text-zinc-300' : 'text-rose-500'">{{ entry.card?.suit }}</span>
+                      <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180" :class="entry.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ entry.card?.rank }}</span>
                     </div>
-                    <span class="text-sm font-medium text-zinc-100 flex-1 truncate">{{ p.name }}<span v-if="p.isHost" class="text-zinc-600 font-normal text-xs ml-1.5">host</span></span>
+                    <!-- Name or placeholder -->
+                    <span v-if="!entry.pending" class="text-sm font-medium text-zinc-100 flex-1 truncate">
+                      {{ entry.player?.name }}<span v-if="entry.player?.isHost" class="text-zinc-600 font-normal text-xs ml-1.5">host</span>
+                    </span>
+                    <span v-else class="text-sm text-zinc-600 flex-1 italic">awaiting card…</span>
+                    <!-- Songs -->
                     <span class="text-xs font-semibold flex-shrink-0" :class="slot.shared ? 'text-orange-400' : 'text-emerald-500'">{{ slot.shared ? '1 song' : '2 songs' }}</span>
                   </div>
                 </div>
@@ -865,6 +871,70 @@ const finalOrder = computed(() => {
 
 // Alias for final order page — all slots in order (volunteers + host + deck)
 const allSlots = finalOrder
+
+// Deal page slots — always shows all slots, with placeholders for undealt ones.
+// Uses originalCards to know what rank each slot will be, even before revealed.
+const dealPageSlots = computed(() => {
+  if (!players.value.length) return []
+
+  // Build the full slot skeleton from originalCards (all cards known)
+  const byRedId: Record<string, Player | null> = {}
+  const byBlackRank: Record<string, Player | null> = {}
+
+  // Map card id → player from originalCards
+  const idToPlayer: Record<string, Player> = {}
+  for (const p of players.value) {
+    if (p.card) idToPlayer[p.card.id] = p
+  }
+  // Also map from originalCards for not-yet-revealed players
+  for (const p of players.value) {
+    const orig = originalCards.value[p.id]
+    if (orig) {
+      if (!orig.isBlack) byRedId[orig.id] = p.card ? p : null
+      else byBlackRank[orig.rank] = p.card ? p : null
+    }
+  }
+
+  const host = hostPlayer.value!
+  type DealSlot = { slotNum: number; shared: boolean; entries: { player: Player | null; card: NightCard | null; pending: boolean }[] }
+  const result: DealSlot[] = []
+  let slotNum = 1
+
+  // Slot 1: host (always revealed)
+  const blackJokerOrig = Object.values(originalCards.value).find(c => c?.id === 'JOKER')
+  const blackJokerPlayer = blackJokerHolder.value
+  const blackJokerPending = !!blackJokerOrig && !blackJokerPlayer
+  const hostEntries: DealSlot['entries'] = [{ player: host, card: HOST_CARD, pending: false }]
+  if (blackJokerOrig) {
+    hostEntries.push({ player: blackJokerPlayer ?? null, card: blackJokerOrig, pending: blackJokerPending })
+  }
+  result.push({ slotNum: slotNum++, shared: !!blackJokerOrig, entries: hostEntries })
+
+  // 2 → A slots
+  for (const redCard of buildRedDeck()) {
+    const redOrig = originalCards.value
+    // Find who owns this red card
+    const redOwner = Object.entries(originalCards.value).find(([, c]) => c?.id === redCard.id)
+    const blackOrig = Object.entries(originalCards.value).find(([, c]) => c && c.isBlack && c.rank === redCard.rank && c.id !== 'JOKER')
+
+    if (redOwner || blackOrig) {
+      const entries: DealSlot['entries'] = []
+      if (redOwner) {
+        const pid = Number(redOwner[0])
+        const p = players.value.find(p => p.id === pid) ?? null
+        entries.push({ player: p?.card ? p : null, card: redCard, pending: !p?.card })
+      }
+      if (blackOrig) {
+        const pid = Number(blackOrig[0])
+        const p = players.value.find(p => p.id === pid) ?? null
+        const bc = blackOrig[1]!
+        entries.push({ player: p?.card ? p : null, card: bc, pending: !p?.card })
+      }
+      result.push({ slotNum: slotNum++, shared: !!blackOrig, entries })
+    }
+  }
+  return result
+})
 
 // Players in slot order (Joker → 2 → A) for the call-up page
 const playersInSlotOrder = computed(() => {
