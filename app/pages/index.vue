@@ -343,19 +343,20 @@
                 </div>
                 <div :class="slot.shared ? 'divide-y divide-orange-900/30' : ''">
                   <div v-for="(entry, i) in slot.entries" :key="i" class="flex items-center gap-3 px-4 py-3.5">
-                    <!-- Card face -->
-                    <div class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
+                    <!-- Card face (only when revealed) or placeholder -->
+                    <div v-if="!entry.pending" class="relative rounded-lg flex-shrink-0 flex flex-col items-center justify-center font-bold"
                       :class="entry.card?.isBlack ? 'bg-zinc-800 border border-zinc-600' : 'bg-white border border-zinc-200'"
                       style="width:32px;height:44px">
                       <span class="text-[6px] absolute top-1 left-1 leading-none" :class="entry.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ entry.card?.rank }}</span>
                       <span class="text-sm leading-none" :class="entry.card?.isBlack ? 'text-zinc-300' : 'text-rose-500'">{{ entry.card?.suit }}</span>
                       <span class="text-[6px] absolute bottom-1 right-1 leading-none rotate-180" :class="entry.card?.isBlack ? 'text-zinc-400' : 'text-rose-500'">{{ entry.card?.rank }}</span>
                     </div>
+                    <div v-else class="w-8 h-11 rounded-lg border border-dashed border-zinc-700 flex-shrink-0"></div>
                     <!-- Name or placeholder -->
                     <span v-if="!entry.pending" class="text-sm font-medium text-zinc-100 flex-1 truncate">
                       {{ entry.player?.name }}<span v-if="entry.player?.isHost" class="text-zinc-600 font-normal text-xs ml-1.5">host</span>
                     </span>
-                    <span v-else class="text-sm text-zinc-600 flex-1 italic">awaiting card…</span>
+                    <span v-else class="text-sm text-zinc-700 flex-1">awaiting</span>
                     <!-- Songs -->
                     <span class="text-xs font-semibold flex-shrink-0" :class="slot.shared ? 'text-orange-400' : 'text-emerald-500'">{{ slot.shared ? '1 song' : '2 songs' }}</span>
                   </div>
