@@ -33,4 +33,4 @@ Then open the local dev server URL printed in the terminal.
 
 ## Status
 
-🚧 Nuxt rewrite of an earlier HTML prototype (see the sibling `the-cards-list` repo) — core dealing/swap logic is implemented via the `useNight` composable, no deployment or persistence layer yet.
+✅ Runs cleanly — `npm install && npm run dev` verified working as of 2026-09-03. Nuxt rewrite of an earlier HTML prototype (see the sibling `the-cards-list` repo) — core dealing/swap logic is implemented via the `useNight` composable, no deployment or persistence layer yet.
