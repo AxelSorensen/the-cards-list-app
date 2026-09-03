@@ -2,6 +2,8 @@
 
 A card-draw tool for running a "music night": deal out a playing-card deck to assign song slots, with support for surplus/volunteer cards and swaps.
 
+![The Cards List screenshot](docs/screenshot.png)
+
 ## Features
 
 - 🎴 **Deck-based slot assignment** — maps a red-card deck (♥/♦ 2–A) to numbered song slots, one card per spot
