@@ -1,75 +1,36 @@
-# Nuxt Minimal Starter
+# 🃏 The Cards List
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A card-draw tool for running a "music night": deal out a playing-card deck to assign song slots, with support for surplus/volunteer cards and swaps.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- 🎴 **Deck-based slot assignment** — maps a red-card deck (♥/♦ 2–A) to numbered song slots, one card per spot
+- ➕ **Surplus & volunteer handling** — extra players get black surplus cards (Joker, ♣2, ♣3…) that share a red card's slot, with a separate volunteer path for people who want an early, single-song turn
+- 🔀 **Swap log** — tracks card swaps between players so the night's assignments stay auditable
+- 🃏 **Card-face rendering** — dedicated `PlayingCard`/`CardFace`/`SurplusCard` components render suits/ranks visually rather than as plain text
+
+## Installation
 
 ```bash
-# npm
+git clone <this repo>
+cd the-cards-list-app
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+## Usage
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+Then open the local dev server URL printed in the terminal.
 
-Build the application for production:
+## Built with
 
-```bash
-# npm
-npm run build
+- [Nuxt 4](https://nuxt.com/) / Vue 3
+- Tailwind CSS
+- TypeScript
 
-# pnpm
-pnpm build
+## Status
 
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+🚧 Nuxt rewrite of an earlier HTML prototype (see the sibling `the-cards-list` repo) — core dealing/swap logic is implemented via the `useNight` composable, no deployment or persistence layer yet.
